@@ -1,7 +1,8 @@
 package com.picpick.service;
 
-import com.picpick.dto.ChatRequest;
-import com.picpick.dto.ChatResponse;
+import com.picpick.gemini.ChatRequest;
+import com.picpick.gemini.ChatResponse;
+import com.picpick.gemini.ChatService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

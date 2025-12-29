@@ -1,4 +1,4 @@
-package com.picpick.dto;
+package com.picpick.gemini;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

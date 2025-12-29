@@ -54,7 +54,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
     implementation "me.paulschwarz:spring-dotenv:4.0.0"
-    
+    implementation 'org.json:json:20240303'
 }
 
 dependencyManagement {

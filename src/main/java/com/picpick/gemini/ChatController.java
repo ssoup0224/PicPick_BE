@@ -1,8 +1,5 @@
-package com.picpick.controller;
+package com.picpick.gemini;
 
-import com.picpick.dto.ChatRequest;
-import com.picpick.dto.ChatResponse;
-import com.picpick.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

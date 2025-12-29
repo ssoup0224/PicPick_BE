@@ -1,7 +1,5 @@
-package com.picpick.service;
+package com.picpick.gemini;
 
-import com.picpick.dto.ChatRequest;
-import com.picpick.dto.ChatResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
