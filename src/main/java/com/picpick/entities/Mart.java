@@ -31,8 +31,11 @@ public class Mart {
     @Column(name = "longitude")
     private Double longitude;
 
-    @Column(name = "excel_file")
-    private String excelFile;
+    @Column(name = "document_file")
+    private String documentFile;
+
+    @Column(name = "registration_number")
+    private String registrationNumber;
 
     @OneToMany(mappedBy = "mart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MartItem> martItems;

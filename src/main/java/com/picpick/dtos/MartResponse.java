@@ -12,7 +12,7 @@ public class MartResponse {
     private String address;
     private Double longitude;
     private Double latitude;
-    private String excelFile;
+    private String documentFile;
     private LocalDateTime createdAt;
     private List<MartItemResponse> items;
 }
