@@ -6,7 +6,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -33,9 +34,16 @@ public class User {
     @Column(name = "total_scans")
     private Integer totalScans;
 
+    @Column(name = "current_longitude")
+    private Double currentLongitude;
+
+    @Column(name = "current_latitude")
+    private Double currentLatitude;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        if (this.totalScans == null) this.totalScans = 0;
+        if (this.totalScans == null)
+            this.totalScans = 0;
     }
 }

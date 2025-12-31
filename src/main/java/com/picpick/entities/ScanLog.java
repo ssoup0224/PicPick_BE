@@ -30,12 +30,6 @@ public class ScanLog {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "current_longitude", nullable = false)
-    private Double currentLongitude;
-
-    @Column(name = "current_latitude", nullable = false)
-    private Double currentLatitude;
-
     @Column(name = "scanned_at", nullable = false, updatable = false)
     private LocalDateTime scannedAt;
 
