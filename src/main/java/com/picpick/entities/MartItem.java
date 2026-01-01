@@ -1,6 +1,7 @@
 package com.picpick.entities;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -33,7 +34,7 @@ public class MartItem {
     @Column(name = "discount_percentage")
     private Integer discountPercentage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "mart_id", nullable = false)
     private Mart mart;
 }

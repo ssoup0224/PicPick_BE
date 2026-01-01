@@ -1,6 +1,7 @@
 package com.picpick.entities;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ import java.util.List;
 @Table(name = "mart")
 public class Mart {
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -38,6 +39,7 @@ public class Mart {
     private String brn;
 
     @OneToMany(mappedBy = "mart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<MartItem> martItems;
 
     @Column(name = "created_at", updatable = false)

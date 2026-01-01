@@ -22,9 +22,9 @@ public class MartRegisterService {
     private final MartRepository martRepository;
 
     public Mart registerMartWithFile(String name,
-                                     String address,
-                                     String brn,
-                                     MultipartFile file) throws Exception {
+            String address,
+            String brn,
+            MultipartFile file) throws Exception {
 
         // 1. 파일을 S3에 업로드
         String s3Key = s3Service.uploadFile(file, "mart-documents");
@@ -39,7 +39,6 @@ public class MartRegisterService {
 
         // 3. 엑셀에서 MartItem 리스트 추출
         List<MartItem> items = parseExcel(file.getInputStream(), mart);
-
         mart.setMartItems(items);
 
         // 4. 저장 (cascade = ALL 로 MartItem까지 저장)
@@ -64,7 +63,8 @@ public class MartRegisterService {
                 }
 
                 String itemName = getString(row.getCell(0));
-                if (itemName.isBlank()) continue;
+                if (itemName.isBlank())
+                    continue;
 
                 int price = (int) row.getCell(1).getNumericCellValue();
                 LocalDate startDate = LocalDate.parse(getString(row.getCell(2)));
@@ -74,7 +74,7 @@ public class MartRegisterService {
                 Cell discountCell = row.getCell(5);
                 if (discountCell != null && discountCell.getCellType() != CellType.BLANK) {
                     double d = discountCell.getNumericCellValue(); // 예: 0.202
-                    discount = (int) Math.round(d * 100);          // 20.2 → 20 으로 저장 등 정책은 자유
+                    discount = (int) Math.round(d * 100); // 20.2 → 20 으로 저장 등 정책은 자유
                 }
 
                 MartItem item = MartItem.builder()
@@ -94,7 +94,8 @@ public class MartRegisterService {
     }
 
     private String getString(Cell cell) {
-        if (cell == null) return "";
+        if (cell == null)
+            return "";
         if (cell.getCellType() == CellType.STRING) {
             return cell.getStringCellValue().trim();
         } else if (cell.getCellType() == CellType.NUMERIC) {

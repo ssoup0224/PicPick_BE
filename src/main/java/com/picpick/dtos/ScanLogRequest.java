@@ -1,16 +1,16 @@
 package com.picpick.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
 
 @Data
-public class ScanLogResponse {
-    private Long id;
+@NoArgsConstructor
+@AllArgsConstructor
+public class ScanLogRequest {
     private String productName;
     private Integer price;
     private String description;
-    private LocalDateTime scannedAt;
+    private Long userId;
     private Long martId;
-    private String martName;
 }

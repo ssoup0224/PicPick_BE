@@ -40,6 +40,10 @@ public class User {
     @Column(name = "current_latitude")
     private Double currentLatitude;
 
+    @ManyToOne()
+    @JoinColumn(name = "current_mart_id")
+    private Mart currentMart;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

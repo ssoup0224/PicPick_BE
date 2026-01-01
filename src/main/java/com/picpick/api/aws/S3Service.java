@@ -33,10 +33,13 @@ public class S3Service {
                 .contentType(contentType)
                 .build();
 
-        s3Client.putObject(
-                putObjectRequest,
-                RequestBody.fromBytes(file.getBytes())
-        );
+        try {
+            s3Client.putObject(
+                    putObjectRequest,
+                    RequestBody.fromBytes(file.getBytes()));
+        } catch (Exception e) {
+            throw new IOException("S3 upload failed", e);
+        }
 
         return fileName; // 필요하면 URL 형태로 가공해서 리턴
     }

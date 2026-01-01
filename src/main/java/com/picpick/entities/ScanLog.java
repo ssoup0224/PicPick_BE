@@ -27,17 +27,14 @@ public class ScanLog {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
     @Column(name = "scanned_at", nullable = false, updatable = false)
     private LocalDateTime scannedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "mart_id", nullable = false)
     private Mart mart;
 
