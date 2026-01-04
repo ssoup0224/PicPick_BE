@@ -147,7 +147,8 @@
       "description": "100ml당 150원",
       "scannedAt": "2024-01-15T14:30:00",
       "martId": 101,
-      "martName": "행복마트"
+      "martName": "행복마트",
+      "onlinePrice": 1200
     }
     ```
 
@@ -170,7 +171,8 @@
         "description": "100ml당 150원",
         "scannedAt": "2024-01-15T14:30:00",
         "martId": 101,
-        "martName": "행복마트"
+        "martName": "행복마트",
+        "onlinePrice": 1200
       },
       {
         "id": 504,
@@ -179,7 +181,8 @@
         "description": "100g당 120원",
         "scannedAt": "2024-01-14T10:00:00",
         "martId": 101,
-        "martName": "행복마트"
+        "martName": "행복마트",
+        "onlinePrice": 1000
       }
     ]
     ```

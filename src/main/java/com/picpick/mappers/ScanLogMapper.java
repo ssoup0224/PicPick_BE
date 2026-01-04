@@ -11,5 +11,6 @@ public interface ScanLogMapper {
     @Mapping(target = "productName", source = "name")
     @Mapping(target = "martId", source = "mart.id")
     @Mapping(target = "martName", source = "mart.name")
+    @Mapping(target = "onlinePrice", source = "onlineItem.itemPrice")
     ScanLogResponse toDto(ScanLog scanLog);
 }

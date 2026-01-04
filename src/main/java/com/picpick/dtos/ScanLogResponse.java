@@ -13,4 +13,5 @@ public class ScanLogResponse {
     private LocalDateTime scannedAt;
     private Long martId;
     private String martName;
+    private Integer onlinePrice;
 }
