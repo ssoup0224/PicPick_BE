@@ -55,14 +55,17 @@ public class ScanLogService {
             NaverProductDto cheapest) {
         ensureMartItemExists(mart, request);
 
+        OnlineItem onlineItem = onlineItemRepository.findByItemName(request.getProductName())
+                .orElse(null);
+
         if (cheapest != null) {
-            OnlineItem onlineItem = OnlineItem.builder()
+            onlineItem = OnlineItem.builder()
                     .naverProductId(cheapest.getProductId())
                     .itemBrand(cheapest.getProductBrand())
                     .itemName(request.getProductName())
                     .itemPrice(cheapest.getLowestPrice())
                     .build();
-            onlineItemRepository.save(onlineItem);
+            onlineItem = onlineItemRepository.save(onlineItem);
         }
 
         ScanLog scanLog = ScanLog.builder()
@@ -71,6 +74,7 @@ public class ScanLogService {
                 .description(request.getDescription())
                 .user(user)
                 .mart(mart)
+                .onlineItem(onlineItem)
                 .build();
 
         return scanLogRepository.save(scanLog);

@@ -38,6 +38,10 @@ public class ScanLog {
     @JoinColumn(name = "mart_id", nullable = false)
     private Mart mart;
 
+    @OneToOne()
+    @JoinColumn(name = "online_item_id")
+    private OnlineItem onlineItem;
+
     @PrePersist
     protected void onCreate() {
         if (this.scannedAt == null) {
