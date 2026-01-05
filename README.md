@@ -36,7 +36,7 @@
 PicPick은 단순히 저렴한 가격이 아닌, **가치(Value)** 중심의 평가를 위해 자체 수식을 사용합니다.
 
 ### 가성비 지수 (VFM Index) 수식
-$$VFM\_Index = \left( \frac{\sum(M_i \times W_i) \times R}{\ln(\text{Price\_Ratio} + e - 1)} \right) \times \prod(\alpha_j)$$
+$$VFM\Index = \left( \frac{\sum(Mi \times Wi) \times R}{\ln(\text{Price\_Ratio} + e - 1)} \right) \times \prod(\alphaj)$$
 
 - **$M_i, W_i$**: 5대 핵심 지표 점수 및 카테고리별 가중치
 - **$R$**: 데이터 신뢰도 (최신성, 리뷰 등)
@@ -52,7 +52,7 @@ $$VFM\_Index = \left( \frac{\sum(M_i \times W_i) \times R}{\ln(\text{Price\_Rati
 6. 홈 리빙 (시간/유지비당 가격)
 7. 펫/라이프 (끼니/개당 가격)
 
-## 📄 Documentation
+## Documentation
 - **API Spec**: [api_spec.md](api_spec.md)
 - **ER Diagram**: [er_diagram.md](er_diagram.md)
 - **Swagger UI**: `http://localhost:8080/swagger-ui.html`
