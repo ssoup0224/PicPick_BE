@@ -9,24 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/gemini")
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
     private final AnalysisService analysisService;
 
-    @PostMapping
-    public ChatResponse chat(@RequestBody ChatRequest request) {
-        return chatService.chat(request);
-    }
-
-    @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> chatStream(@RequestBody ChatRequest request) {
-        return chatService.chatStream(request);
-    }
-
     @PostMapping("/analyze")
-    public ChatResponse analyzeProduct(@RequestBody AnalysisRequest request) {
-        return new ChatResponse(analysisService.generateReport(request));
+    public AnalysisAIResponse analyzeProduct(@RequestBody AnalysisRequest request) {
+        return analysisService.generateReport(request);
     }
 }

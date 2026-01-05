@@ -11,4 +11,5 @@ public class AnalysisRequest {
     private String productName;
     private Integer martPrice;
     private Integer onlinePrice;
+    private Long scanLogId;
 }

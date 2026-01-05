@@ -189,13 +189,13 @@
 
 ---
 
-## 4. AI 분석 및 채팅 API (Gemini)
-
-Google Gemini를 활용한 고도화된 소비 분석 기능을 제공.
-
-### 4-1. 상품 가성비 정밀 분석 (Pick-Report)
-- **URL**: `POST /api/chat/analyze`
-- **설명**: 상품명, 마트가, 온라인가를 입력하면 AI가 카테고리 분류, 경쟁력 분석, VFM 지수 산출 등을 포함한 리포트를 생성.
+## 4. AI 분석 API (Gemini)
+ 
+ Google Gemini를 활용한 고도화된 소비 분석 기능을 제공.
+ 
+ ### 4-1. 상품 가성비 정밀 분석 (Pick-Report)
+- **URL**: `POST /gemini/analyze`
+- **설명**: 상품명, 마트가, 온라인가를 입력하면 AI가 '픽픽'만의 7대 MECE 카테고리 분류, 픽단가 환산, VFM 지수 산출 등을 포함한 리포트를 생성.
 
 **Request Body**
 | Key | Type | Description |
@@ -203,11 +203,28 @@ Google Gemini를 활용한 고도화된 소비 분석 기능을 제공.
 | productName | String | 분석 대상 상품명 (필수) |
 | martPrice | Integer | 현재 마트 판매 가격 (필수) |
 | onlinePrice | Integer | 온라인 최저가 또는 비교 가격 (필수) |
+| scanLogId | Long | 연관된 스캔 로그 ID (옵션, 입력 시 자동 저장) |
 
 - **Response (200 OK)**:
     ```json
     {
-      "response": "분석 결과, 이 상품은 마트가가 온라인 최저가보다 약 10% 저렴하여 높은 경쟁력을 가집니다. VFM 지수는 4.5점으로 '강력 추천' 등급입니다. 카테고리는 [신선식품]으로 분류됩니다."
+      "productName": "코카콜라 500ml",
+      "chosenCategory": "기호/음료",
+      "pickScore": 4.2,
+      "credibilityScore": 0.95,
+      "pickPriceInfo": "한 잔(200ml)에 600원꼴",
+      "priceDifferencePercent": -15.5,
+      "isCheaperThanOnline": true,
+      "indices": [
+        { "name": "행사 효율", "reason": "2+1 행사 적용 시 온라인보다 저렴" },
+        { "name": "영양 밀도", "reason": "당류 함량이 높으나 카페인 무첨가" },
+        { "name": "브랜드 구현율", "reason": "오리지널 코크의 배합비 충실" },
+        { "name": "용기 편의성", "reason": "그립감이 좋은 펫트 디자인" },
+        { "name": "대체 가능성", "reason": "브랜드 충성도가 높은 상품" }
+      ],
+      "qualitySummary": "천연 향료와 정제수를 사용한 정통 탄산음료의 가치를 유지하고 있습니다.",
+      "priceSummary": "현재 마트 판매가는 온라인 최저가 대비 약 15% 저렴하며, 픽단가 기준 매우 우수한 효율을 보입니다.",
+      "conclusion": "행사 기간 내 구매를 강력 추천하며, 대량 구매 시 더 높은 VFM을 기대할 수 있습니다."
     }
     ```
 

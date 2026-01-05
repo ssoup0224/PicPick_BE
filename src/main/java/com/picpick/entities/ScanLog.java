@@ -1,5 +1,6 @@
 package com.picpick.entities;
 
+import com.picpick.api.gemini.AnalysisReport;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,6 +42,9 @@ public class ScanLog {
     @OneToOne()
     @JoinColumn(name = "online_item_id")
     private OnlineItem onlineItem;
+
+    @OneToOne(mappedBy = "scanLog", cascade = CascadeType.ALL)
+    private AnalysisReport analysisReport;
 
     @PrePersist
     protected void onCreate() {
