@@ -52,41 +52,7 @@
     }
     ```
 
-### 1-3. 위치 인증 및 현재 마트 할당
-- **URL**: `POST /users/location`
-- **설명**: 현재 위도/경도를 기반으로 사용자가 마트 내에 있는지 확인하고, 해당 마트를 현재 위치로 할당.
-
-**Request Body**
-| Key | Type | Description |
-| :--- | :--- | :--- |
-| uuid | String | 사용자 고유 식별 (필수) |
-| latitude | Double | 사용자의 현재 위도 (필수) |
-| longitude | Double | 사용자의 현재 경도 (필수) |
-
-- **Response (200 OK)**:
-    ```json
-    {
-      "id": 101,
-      "name": "행복마트",
-      "address": "서울시 강남구 테헤란로 123",
-      "longitude": 127.12345,
-      "latitude": 37.56789,
-      "documentFile": "mart_documents/abc.xlsx",
-      "createdAt": "2024-01-10T10:00:00",
-      "items": [
-        {
-          "id": 1,
-          "name": "사과",
-          "price": 2000,
-          "startDate": "2024-01-01",
-          "endDate": "2024-02-01",
-          "discountPercentage": 10
-        }
-      ]
-    }
-    ```
-
-### 1-4. 위치 정보 업데이트
+### 1-3. 위치 정보 업데이트
 - **URL**: `PATCH /users/location/update`
 - **설명**: 사용자의 현재 좌표 정보를 업데이트하고 필요한 경우 마트 할당을 갱신.
 

@@ -45,11 +45,11 @@ public class UserController {
     }
 
     // 위치 인증
-    @PostMapping("/location")
-    public ResponseEntity<MartResponse> verifyLocation(@RequestBody LocationVerificationRequest request) {
-        MartResponse response = userService.verifyLocation(request);
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/location")
+//    public ResponseEntity<MartResponse> verifyLocation(@RequestBody LocationVerificationRequest request) {
+//        MartResponse response = userService.verifyLocation(request);
+//        return ResponseEntity.ok(response);
+//    }
 
     @PatchMapping("/location/update")
     public ResponseEntity<MartResponse> updateLocation(@RequestBody LocationVerificationRequest request) {

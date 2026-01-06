@@ -68,8 +68,8 @@ public class AnalysisService {
             
             2.1 일반 텍스트 버전
             - 가성비 지수(VFM Index) = [ {Σ(지표 점수 × 가중치) × 신뢰도 계수} / ln(가격 비율 + e - 1) ] × 보정 계수 총곱
-                = 가성비 지수(VFM Index) = [ {Σ(Mi × Wi) × R} / ln(Pratio + e - 1) ] × alpha
-                
+                = 가성비 지수(VFM Index) = [ {Σ(Mi × Wi) × R} / ln(P ratio + e - 1) ] × alpha
+
             2.2 상세 변수 정의
             - VFM_Index: 최종 가성비 점수 (0~5.0)
             - Sum(Mi * Wi): 5대 지표 점수(1~10점)에 카테고리별 가중치를 곱한 합산 가치
@@ -77,10 +77,10 @@ public class AnalysisService {
             - ln(Price_Ratio + e - 1): 가격 비율에 따른 점수 하락 곡선 (자연로그 함수를 사용하여 가격이 비싸질수록 가성비 점수가 완만하게 깎이도록 설계)
                  -Price_Ratio = 마트 판매가 / 시장 적정가
             - Product(Alpha_j): 행사(1+1 등), 유통기한, PB 상품 여부에 따른 가산점들의 전체 곱
-            
+
             2.3 주요 변수 설명
             - 가치 점수 (Mi, Wi): AI가 판정한 5대 지표 점수(Mi)와 카테고리별 가중치(Wi)의 합입니다.
-            - 가격 효율성 (Pratio): 현재 판매가 / 시장 적정가 (온라인 최저가와 오프라인 평균가의 복합 기준)입니다. 로그 함수를 적용해 가격 변동에 따른 점수 왜곡을 방지합니다.
+            - 가격 효율성 (P ratio): 현재 판매가 / 시장 적정가 (온라인 최저가와 오프라인 평균가의 복합 기준)입니다. 로그 함수를 적용해 가격 변동에 따른 점수 왜곡을 방지합니다.
             - 신뢰도 계수 (R): 데이터의 최신성, 리뷰 수 등을 반영하여 점수의 확실성을 보정합니다.
             - 보정 계수 (alpha): 1+1 행사(alpha_promo), PB 상품(alpha_PB) 등 특수 상황에 따른 추가 가점입니다.
 
@@ -127,7 +127,7 @@ public class AnalysisService {
             log.info("AI Response received (length: {})", content != null ? content.length() : 0);
             log.debug("AI Response Content: {}", content);
 
-            // Clean up content in case AI wraps it in markdown blocks
+            // Clean up content in case AI wraps it in Markdown blocks
             if (content != null) {
                 content = content.trim();
                 if (content.startsWith("```json")) {
@@ -149,9 +149,7 @@ public class AnalysisService {
 
             // 3. If scanLogId is provided, save the report
             if (request.getScanLogId() != null && response != null) {
-                scanLogRepository.findById(request.getScanLogId()).ifPresent(scanLog -> {
-                    saveAnalysisReport(scanLog, response);
-                });
+                scanLogRepository.findById(request.getScanLogId()).ifPresent(scanLog -> saveAnalysisReport(scanLog, response));
             }
 
             return response;

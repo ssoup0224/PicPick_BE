@@ -34,29 +34,29 @@ public class UserService {
     private final MartMapper martMapper;
 
     // 위치 인증
-    @Transactional
-    public MartResponse verifyLocation(LocationVerificationRequest request) {
-        String uuid = request.getUuid();
-        User user = userRepository.findByUuid(uuid)
-                .orElseThrow(() -> new RuntimeException("User not found: " + uuid));
-
-        // 유저 위치 업데이트
-        user.setCurrentLatitude(request.getLatitude());
-        user.setCurrentLongitude(request.getLongitude());
-        userRepository.save(user);
-
-        // 가장 가까운 마트 찾기
-        List<Mart> marts = martRepository.findNearestMart(
-                request.getLatitude(),
-                request.getLongitude(),
-                PageRequest.of(0, 1));
-
-        if (marts.isEmpty()) {
-            throw new RuntimeException("No marts found near location");
-        }
-
-        return martMapper.toDto(marts.get(0));
-    }
+//    @Transactional
+//    public MartResponse verifyLocation(LocationVerificationRequest request) {
+//        String uuid = request.getUuid();
+//        User user = userRepository.findByUuid(uuid)
+//                .orElseThrow(() -> new RuntimeException("User not found: " + uuid));
+//
+//        // 유저 위치 업데이트
+//        user.setCurrentLatitude(request.getLatitude());
+//        user.setCurrentLongitude(request.getLongitude());
+//        userRepository.save(user);
+//
+//        // 가장 가까운 마트 찾기
+//        List<Mart> marts = martRepository.findNearestMart(
+//                request.getLatitude(),
+//                request.getLongitude(),
+//                PageRequest.of(0, 1));
+//
+//        if (marts.isEmpty()) {
+//            throw new RuntimeException("No marts found near location");
+//        }
+//
+//        return martMapper.toDto(marts.get(0));
+//    }
 
     @Transactional
     public MartResponse updateLocation(LocationVerificationRequest request) {
