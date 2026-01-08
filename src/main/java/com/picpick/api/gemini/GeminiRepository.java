@@ -11,4 +11,6 @@ public interface GeminiRepository extends JpaRepository<Gemini, Long> {
     List<Gemini> findAllByUserId(Long userId);
 
     Optional<Gemini> findByScanId(Long scanId);
+
+    Optional<Gemini> findFirstByScanNameOrderByIdDesc(String scanName);
 }

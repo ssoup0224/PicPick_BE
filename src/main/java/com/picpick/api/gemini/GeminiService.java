@@ -7,8 +7,11 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-
+import org.springframework.scheduling.annotation.Async;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -19,9 +22,9 @@ public class GeminiService {
     private final UserRepository userRepository;
 
     public GeminiService(ChatClient.Builder chatClientBuilder,
-                         GeminiRepository geminiRepository,
-                         GeminiMapper geminiMapper,
-                         UserRepository userRepository) {
+            GeminiRepository geminiRepository,
+            GeminiMapper geminiMapper,
+            UserRepository userRepository) {
         this.chatClient = chatClientBuilder.build();
         this.geminiRepository = geminiRepository;
         this.geminiMapper = geminiMapper;
@@ -186,11 +189,55 @@ public class GeminiService {
         log.info("Analyzing product with Gemini: {}, scanPrice: {}, naverPrice: {}", request.getScanName(),
                 request.getScanPrice(), request.getNaverPrice());
 
+        GeminiResponse response = getAiReport(request.getScanName(),
+                request.getScanPrice() != null ? request.getScanPrice().doubleValue() : 0.0,
+                request.getNaverPrice() != null ? request.getNaverPrice().doubleValue() : 0.0,
+                request.getAiUnitPrice());
+
+        if (response != null && !"분석 불가".equals(response.getConclusion())
+                && !"분석 오류".equals(response.getConclusion())) {
+            Gemini entity = geminiMapper.toEntity(response);
+            geminiRepository.save(entity);
+        }
+
+        return response;
+    }
+
+    @Transactional
+    public void analyzeProduct(Scan scan, Long userId) {
+        log.info("Analyzing Scan with Gemini in background: {}, scanPrice: {}, naverPrice: {}", scan.getScanName(),
+                scan.getScanPrice(), scan.getNaverPrice());
+
+        // Determine existing unit price
+        String aiUnitPrice = "";
+        if (scan.getAiUnitPrice() != null && !scan.getAiUnitPrice().equals("분석 오류")
+                && !scan.getAiUnitPrice().equals("분석 불가")
+                && !scan.getAiUnitPrice().contains("해냈어")) { // Skip placeholder
+            aiUnitPrice = scan.getAiUnitPrice();
+            log.debug("Using existing unit price for Scan {}: {}", scan.getId(), aiUnitPrice);
+        }
+
+        GeminiResponse response = getAiReport(scan.getScanName(),
+                scan.getScanPrice() != null ? scan.getScanPrice().doubleValue() : 0.0,
+                scan.getNaverPrice() != null ? scan.getNaverPrice().doubleValue() : 0.0,
+                aiUnitPrice);
+
+        if (response != null && !"분석 불가".equals(response.getConclusion())
+                && !"분석 오류".equals(response.getConclusion())) {
+            Gemini entity = geminiMapper.toEntity(response);
+            entity.setScan(scan);
+            userRepository.findById(userId).ifPresent(entity::setUser);
+            geminiRepository.save(entity);
+            log.debug("AI Response for Scan {}: {}", scan.getId(), response);
+        }
+    }
+
+    private GeminiResponse getAiReport(String scanName, Double scanPrice, Double naverPrice, String aiUnitPrice) {
         String userInput = ANALYSIS_PROMPT
-                .replace("{scanName}", request.getScanName() != null ? request.getScanName() : "")
-                .replace("{scanPrice}", request.getScanPrice() != null ? request.getScanPrice().toString() : "0")
-                .replace("{naverPrice}", request.getNaverPrice() != null ? request.getNaverPrice().toString() : "0")
-                .replace("{aiUnitPrice}", request.getAiUnitPrice() != null ? request.getAiUnitPrice() : "");
+                .replace("{scanName}", scanName != null ? scanName : "")
+                .replace("{scanPrice}", scanPrice != null ? scanPrice.toString() : "0")
+                .replace("{naverPrice}", naverPrice != null ? naverPrice.toString() : "0")
+                .replace("{aiUnitPrice}", aiUnitPrice != null ? aiUnitPrice : "");
 
         try {
             GeminiResponse response = chatClient.prompt()
@@ -207,71 +254,63 @@ public class GeminiService {
                 errorResponse.setConclusion("분석 불가");
                 return errorResponse;
             }
-            Gemini entity = geminiMapper.toEntity(response);
-            geminiRepository.save(entity);
-            log.debug("AI Response: {}", response);
             return response;
         } catch (Exception e) {
-            log.error("Error during analysis: {}", e.getMessage());
+            log.error("Error during Gemini analysis: {}", e.getMessage());
             GeminiResponse errorResponse = new GeminiResponse();
             errorResponse.setConclusion("분석 오류");
             return errorResponse;
         }
     }
 
-    public void analyzeProduct(Scan scan, Long userId) {
-        log.info("Analyzing Scan with Gemini in background: {}, scanPrice: {}, naverPrice: {}", scan.getScanName(),
-                scan.getScanPrice(), scan.getNaverPrice());
-
-        // Determine existing unit price
-        String aiUnitPrice = "";
-        if (scan.getAiUnitPrice() != null && !scan.getAiUnitPrice().equals("분석 오류")
-                && !scan.getAiUnitPrice().equals("분석 불가")) {
-            aiUnitPrice = scan.getAiUnitPrice();
-            log.debug("Using existing unit price for Scan {}: {}", scan.getId(), aiUnitPrice);
-        }
-
-        String userInput = ANALYSIS_PROMPT
-                .replace("{scanName}", scan.getScanName() != null ? scan.getScanName() : "")
-                .replace("{scanPrice}", scan.getScanPrice() != null ? scan.getScanPrice().toString() : "0")
-                .replace("{naverPrice}", scan.getNaverPrice() != null ? scan.getNaverPrice().toString() : "0")
-                .replace("{aiUnitPrice}", aiUnitPrice);
-
-        try {
-            GeminiResponse response = chatClient.prompt()
-                    .user(userInput)
-                    .options(GoogleGenAiChatOptions.builder()
-                            .googleSearchRetrieval(true)
-                            .build())
-                    .call()
-                    .entity(new ParameterizedTypeReference<GeminiResponse>() {
-                    });
-
-            if (response == null) {
-                log.warn("Gemini analysis returned null for Scan {}", scan.getId());
-                return;
-            }
-
-            Gemini entity = geminiMapper.toEntity(response);
-            entity.setScan(scan);
-
-            userRepository.findById(userId).ifPresent(entity::setUser);
-
-            geminiRepository.save(entity);
-
-            log.debug("AI Response for Scan {}: {}", scan.getId(), response);
-        } catch (Exception e) {
-            log.error("Error during analysis for Scan {}: {}", scan.getId(), e.getMessage());
-        }
+    @Transactional
+    public Optional<Gemini> findAndCloneAnalysis(Scan scan, Long userId) {
+        return geminiRepository.findFirstByScanNameOrderByIdDesc(scan.getScanName())
+                .map(existingGemini -> {
+                    log.info("Reusing existing Gemini analysis for: {}", scan.getScanName());
+                    Gemini newGemini = copyGemini(existingGemini);
+                    newGemini.setScan(scan);
+                    scan.setGemini(newGemini); // Maintain bidirectional consistency
+                    userRepository.findById(userId).ifPresent(newGemini::setUser);
+                    return geminiRepository.save(newGemini);
+                });
     }
 
-    @org.springframework.scheduling.annotation.Async
+    private Gemini copyGemini(Gemini source) {
+        Gemini target = Gemini.builder()
+                .naverImage(source.getNaverImage())
+                .naverBrand(source.getNaverBrand())
+                .scanName(source.getScanName())
+                .category(source.getCategory())
+                .pickScore(source.getPickScore())
+                .reliabilityScore(source.getReliabilityScore())
+                .scanPrice(source.getScanPrice())
+                .naverPrice(source.getNaverPrice())
+                .priceDiff(source.getPriceDiff())
+                .isCheaper(source.getIsCheaper())
+                .aiUnitPrice(source.getAiUnitPrice())
+                .qualitySummary(source.getQualitySummary())
+                .priceSummary(source.getPriceSummary())
+                .conclusion(source.getConclusion())
+                .build();
+
+        if (source.getIndexes() != null) {
+            List<Gemini.Indicator> newIndexes = source.getIndexes().stream()
+                    .map(i -> new Gemini.Indicator(i.getName(), i.getReason()))
+                    .collect(Collectors.toList());
+            target.setIndexes(newIndexes);
+        }
+
+        return target;
+    }
+
+    @Async
     public void analyzeScansBatch(List<Scan> scans, Long userId) {
         for (Scan scan : scans) {
             if (scan.getGemini() == null) {
                 analyzeProduct(scan, userId);
                 try {
-                    Thread.sleep(3000); // 3-second delay to respect rate limit
+                    Thread.sleep(3000); // 3-second delay to respect rate limit for background calls
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.warn("Batch analysis interrupted");
@@ -281,7 +320,7 @@ public class GeminiService {
         }
     }
 
-    public java.util.Optional<GeminiResponse> getAnalyzedProductByScanId(Long scanId) {
+    public Optional<GeminiResponse> getAnalyzedProductByScanId(Long scanId) {
         return geminiRepository.findByScanId(scanId)
                 .map(geminiMapper::toResponse);
     }
@@ -289,6 +328,6 @@ public class GeminiService {
     public List<GeminiResponse> getAnalyzedProducts(Long userId) {
         return geminiRepository.findAllByUserId(userId).stream()
                 .map(geminiMapper::toResponse)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 }

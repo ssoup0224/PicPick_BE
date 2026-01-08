@@ -74,7 +74,7 @@ public class ScanService {
 //                        UnitPriceResponse unitPriceResponse = geminiService
 //                                .getUnitPrice(new UnitPriceRequest(item.getScanName(), item.getScanPrice()));
 //                        scan.setAiUnitPrice(unitPriceResponse.getAiUnitPrice());
-                        scan.setAiUnitPrice(null);
+                        scan.setAiUnitPrice("해냈어!! 잘하고 있어!! 화이팅하자!!");
                     }
 
                     return scan;
@@ -93,10 +93,20 @@ public class ScanService {
         return CompletableFuture.completedFuture(responses);
     }
 
+    @Transactional
     public List<ScanResponse> getScans(Long userId) {
         List<Scan> scans = scanRepository.findAllByUser_Id(userId);
 
-        geminiService.analyzeScansBatch(scans, userId);
+        // Synchronously try to reuse existing analysis for scans that don't have one
+        List<Scan> scansToAnalyze = scans.stream()
+                .filter(scan -> scan.getGemini() == null)
+                .filter(scan -> geminiService.findAndCloneAnalysis(scan, userId).isEmpty())
+                .collect(Collectors.toList());
+
+        // Background analysis only for scans that still need it
+        if (!scansToAnalyze.isEmpty()) {
+            geminiService.analyzeScansBatch(scansToAnalyze, userId);
+        }
 
         return scans.stream()
                 .map(scanMapper::toResponse)
