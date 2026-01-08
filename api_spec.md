@@ -122,7 +122,7 @@
 
 | **Field** | 타입 | 설명 |
 | --- | --- | --- |
-| `userId` | String | 유저 ID |
+| `userId` | Long | 유저 ID |
 | `items` | Array | 스캔한 재품 리스트 |
 | `items[].scanName` | String | 재품 명 |
 | `items[].scanPrice` | Integer | 재품 가격 |
@@ -158,6 +158,7 @@
 | `naverMaker` | String | 재품 제조사 |
 | `naverImage` | String | 재품 이미지 URL |
 | `aiUnitPrice` | String | AI로 계산된 단위 가격e (e.g., "1인분에 900원") |
+| `isShown` | Boolean | 상품 노출 여부 (기본값: false) |
 
 예시: 
 
@@ -171,7 +172,8 @@
     "naverBrand": "",
     "naverMaker": "",
     "naverImage": "https://shopping-phinf.pstatic.net/main_8978996/89789963418.7.jpg",
-    "aiUnitPrice": "분석 오류"
+    "aiUnitPrice": "분석 오류",
+    "isShown": false
 }
 ```
 
@@ -203,6 +205,7 @@
 | `naverMaker` | String | 재품 제조사 |
 | `naverImage` | String | 재품 이미지 URL |
 | `aiUnitPrice` | String | AI로 계산된 단위 가격e (e.g., "1인분에 900원") |
+| `isShown` | Boolean | 상품 노출 여부 (조회 시 true로 자동 변경) |
 
 예시: 
 
@@ -216,7 +219,31 @@
     "naverBrand": "",
     "naverMaker": "",
     "naverImage": "https://shopping-phinf.pstatic.net/main_8978996/89789963418.7.jpg",
-    "aiUnitPrice": "분석 오류"
+    "aiUnitPrice": "분석 오류",
+    "isShown": true
+}
+```
+
+### 3. Hide Scanned Items (PATCH)
+
+> 유저의 모든 스캔 기록을 숨김 처리한다. (`isShown` 필드를 `false`로 변경)
+> 
+- **Endpoint:** `PATCH /scan/hide`
+- **설명:** 유저의 모든 스캔 아이템 노출 여부 초기화
+
+**Request Parameters**
+
+| **Parameter** | 타입 | 설명 |
+| --- | --- | --- |
+| `userId` | Long | 유저  ID |
+
+→ 예시: `PATCH /scan/hide?userId=1`
+
+**Response**: `200 OK`
+
+```json
+{
+  "message": "모든 상품이 숨김 처리되었습니다."
 }
 ```
 

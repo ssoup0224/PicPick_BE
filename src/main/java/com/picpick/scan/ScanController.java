@@ -30,6 +30,12 @@ public class ScanController {
         return ResponseEntity.ok(scanService.getScans(userId));
     }
 
+    @PatchMapping("/hide")
+    public ResponseEntity<?> hideScanItems(@RequestParam Long userId) {
+        scanService.hideScans(userId);
+        return ResponseEntity.ok(Map.of("message", "모든 상품이 숨김 처리되었습니다."));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteScannedItem(@PathVariable Long id) {
         scanService.deleteScannedItem(id);

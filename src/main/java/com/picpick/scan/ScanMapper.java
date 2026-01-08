@@ -19,6 +19,7 @@ public interface ScanMapper {
     @org.mapstruct.Mapping(target = "naverName", ignore = true)
     @org.mapstruct.Mapping(target = "naverPrice", ignore = true)
     @org.mapstruct.Mapping(target = "naverImage", ignore = true)
+    @org.mapstruct.Mapping(target = "isShown", ignore = true)
     @org.mapstruct.Mapping(target = "aiUnitPrice", ignore = true)
     @org.mapstruct.Mapping(target = "user", ignore = true)
     @org.mapstruct.Mapping(target = "mart", ignore = true)

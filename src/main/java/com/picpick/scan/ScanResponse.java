@@ -13,4 +13,5 @@ public class ScanResponse {
     private String naverMaker;
     private String naverImage;
     private String aiUnitPrice;
+    private Boolean isShown;
 }

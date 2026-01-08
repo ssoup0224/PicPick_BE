@@ -19,4 +19,5 @@ public class ScanDto {
     private Integer naverPrice;
     private String naverImage;
     private String aiUnitPrice;
+    private Boolean isShown;
 }

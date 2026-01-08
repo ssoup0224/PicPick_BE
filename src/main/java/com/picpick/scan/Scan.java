@@ -48,6 +48,10 @@ public class Scan {
     @Column(name = "naver_image")
     private String naverImage;
 
+    @Builder.Default
+    @Column(name = "is_shown")
+    private Boolean isShown = false;
+
     // Gemini 통해 받아오는 정보
     @Column(name = "ai_unit_price")
     private String aiUnitPrice;

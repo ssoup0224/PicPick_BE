@@ -97,6 +97,9 @@ public class ScanService {
     public List<ScanResponse> getScans(Long userId) {
         List<Scan> scans = scanRepository.findAllByUser_Id(userId);
 
+        // Update isShown to true when fetched
+        scans.forEach(scan -> scan.setIsShown(true));
+
         // Synchronously try to reuse existing analysis for scans that don't have one
         List<Scan> scansToAnalyze = scans.stream()
                 .filter(scan -> scan.getGemini() == null)
@@ -111,6 +114,13 @@ public class ScanService {
         return scans.stream()
                 .map(scanMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void hideScans(Long userId) {
+        List<Scan> scans = scanRepository.findAllByUser_Id(userId);
+        scans.forEach(scan -> scan.setIsShown(false));
+        log.info("Reset isShown to false for user ID: {}", userId);
     }
 
     public void deleteScannedItem(Long scanId) {
