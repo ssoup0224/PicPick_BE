@@ -1,58 +1,78 @@
-# PicPick BE
+# PicPick Backend (BE)
 
-## Project Overview
-**PicPick**은 오프라인 마트 쇼핑객을 위한 'AI 소비 전략가' 서비스입니다. 사용자가 마트에서 상품을 스캔하면, AI(Gemini)가 온라인 최저가와 비교하여 단순히 가격뿐만 아니라 상품의 가치(성분, 용량, 브랜드 등)를 종합적으로 분석한 **픽리포트(Pick-Report)**를 제공합니다.
+## 프로젝트 개요
+**PicPick**은 마트 쇼핑객을 위한 **'AI 소비 전략가'** 서비스입니다. 
+단순한 가격 비교를 넘어, 상품의 가치(성분, 용량, 브랜드 가치 등)를 종합적으로 분석하여 소비자에게 최적의 구매 의사결정을 지원합니다.
 
-## Key Features
-- **AI 픽리포트 (VFM 분석)**: 상품명과 가격 데이터를 기반으로 가성비 지수(VFM Index)를 산출하고 5대 지표 분석을 제공합니다.
-- **7대 MECE 카테고리 분류**: AI가 상품의 성격에 따라 최적화된 픽단가(Pick Price) 환산 로직을 적용합니다.
-- **실시간 위치 기반 마트 매칭**: 사용자의 GPS 좌표를 기반으로 현재 위치한 마트의 행사 정보와 연동됩니다.
-- **스캔 이력 관리**: 사용자가 스캔한 모든 상품과 분석 리포트를 히스토리 형태로 관리합니다.
-- **마트 정보 자동화**: 마트 관리자가 업로드한 엑셀(XLSX) 파일을 분석하여 상품 데이터베이스를 자동으로 구축합니다.
+Google Gemini AI를 기반으로 한 **픽리포트(Pick-Report)**를 통해 오프라인 마트의 가격이 온라인 최저가 대비 얼마나 합리적인지 즉각적으로 판단해 드립니다.
+
+---
+
+## 핵심 기능
+
+### 1. AI 픽리포트 (Pick-Report)
+- **VFM(Value for Money) 분석**: 상품의 실질 가치와 가격을 비교하여 0.0~5.0점 사이의 픽스코어(Pick Score)를 산출합니다.
+- **5대 지표 분석**: 카테고리에 맞는 5가지 핵심 지표(품질, 편의성, 가용성 등)를 바탕으로 심층 분석 결과를 제공합니다.
+
+### 2. 고도화된 스캔 프로세싱
+- **데이터 재사용 최적화**: 동일 상품에 대해 네이버 최저가 검색 및 AI 분석 결과를 데이터베이스에서 찾아 재사용함으로써 외부 API 호출을 최소화하고 응답 속도를 극대화했습니다.
+- **동기/비동기 하이브리드 분석**: 기존 분석 데이터가 있는 경우 즉시 반환(동기)하며, 새로운 상품은 백그라운드에서 분석(비동기)하여 사용자 경험을 최적화합니다.
+
+### 3. 위치 기반 스마트 마트 매칭
+- 사용자의 현재 위도/경도를 기반으로 가장 가까운 제휴 마트를 자동으로 매칭합니다.
+- 마트 관리자가 업로드한 행사 상품 정보를 실시간으로 반영합니다.
+
+### 4. 7대 MECE 카테고리
+- 신선식품, 가공식품, 위생용품 등 상품의 특성에 맞는 7가지 카테고리별 맞춤형 픽단가(Pick Price) 환산 로직을 적용합니다.
+
+---
 
 ## Tech Stack
-- **Language**: Java 17
-- **Framework**: Spring Boot 3.5.8
-- **AI Engine**: Spring AI (Google Gemini 1.5 Flash)
-- **Database**: MySQL 8.0 / JPA (Hibernate)
-- **Migration**: Flyway
-- **Mapping**: MapStruct 1.6.2
-- **Documentation**: SpringDoc OpenAPI / Swagger UI
----
 
-## System Flow: AI Analysis Sequence
-
-### Logical Flow
-1. **요청 수신 (Request Intake)**: 클라이언트가 상품 상세 정보와 `scanLogId`를 포함한 `AnalysisRequest`를 전송.
-2. **프롬프트 구성 (Prompt Orchestration)**: `AnalysisService`가 MECE 최적화된 `ANALYSIS_PROMPT`에 실시간 데이터를 치환하여 정교한 분석 프롬프트를 생성.
-3. **AI 지능 분석 (AI Intelligence)**: Google Gemini 모델이 입력을 분석하여 고도화된 JSON 형태의 평가 결과를 도출.
-4. **데이터 정규화 및 저장 (Data Persistence)**: 
-    - AI 응답에서 불필요한 마크다운을 제거하고 `AnalysisAIResponse` 객체로 파싱.
-    - `scanLogId`가 있는 경우, 중복 저장을 방지하기 위해 기존 리포트 유무를 확인.
-    - `AnalysisMapper`를 통해 최신 분석 결과를 `AnalysisReport` 엔티티에 반영 및 저장.
-5. **최종 결과 전달 (Final Delivery)**: 구조화된 분석 데이터를 클라이언트에 반환하여 즉각적인 리포트 화면 구성을 지원.
+- **Core**: Java 17, Spring Boot 3.5.8
+- **AI**: Spring AI (Google Gemini 1.5 Flash)
+- **Data**: MySQL 8.0, Spring Data JPA, Hibernate, Flyway
+- **External API**: Naver Search API
+- **Cloud**: AWS S3 (for Mart Document Files)
+- **Utils**: MapStruct, Lombok, Swagger UI (SpringDoc 2.8.5), Dotenv
 
 ---
-PicPick은 단순히 저렴한 가격이 아닌, **가치(Value)** 중심의 평가를 위해 자체 수식을 사용합니다.
 
-### 가성비 지수 (VFM Index) 수식
-$$VFM\Index = \left( \frac{\sum(Mi \times Wi) \times R}{\ln(\text{Price\_Ratio} + e - 1)} \right) \times \prod(\alphaj)$$
+## System Logic
 
-- **$M_i, W_i$**: 5대 핵심 지표 점수 및 카테고리별 가중치
-- **$R$**: 데이터 신뢰도 (최신성, 리뷰 등)
-- **Price_Ratio**: 현재 판매가 / 시장 적정가
-- **$\alpha_j$**: 행사(1+1 등), 브랜드 가치 등에 따른 보정 계수
+### Scan & Analysis Flow
+1. **스캔 요청 (`POST /scan`)**: 사용자가 상품 이름과 가격을 전송합니다.
+2. **네이버 검색 & 재사용**: DB에서 최근 1시간 내 동일 상품의 최저가 정보가 있는지 확인합니다. 있으면 재사용, 없으면 네이버 API를 호출합니다.
+3. **픽단가 산출**: 기존에 산출된 AI 픽단가가 있으면 이를 즉시 할당합니다.
+4. **목록 조회 및 분석 (`GET /scan`)**: 
+   - 분석 결과가 없는 상품들에 대해 DB에서 유사 분석 리포트를 검색하여 복제(Cloning)합니다.
+   - 여전히 분석이 필요한 상품은 백그라운드 스레드에서 Gemini AI를 통해 분석을 수행합니다.
+5. **리포트 확인 (`GET /gemini/{scanId}`)**: 완성된 심층 분석 리포트를 조회합니다.
 
-### 7대 MECE 카테고리
-1. 신선 식품 (단위 무게당 가격)
-2. 가공 식료품 (1회 한 끼당 가격)
-3. 기호/음료 (잔/팩당 가격)
-4. 생활 위생 (회/롤당 가격)
-5. 퍼스널 케어 (단위 사용량당 가격)
-6. 홈 리빙 (시간/유지비당 가격)
-7. 펫/라이프 (끼니/개당 가격)
+---
 
 ## Documentation
-- **API Spec**: [api_spec.md](api_spec.md)
-- **ER Diagram**: [er_diagram.md](er_diagram.md)
-- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+
+- **API Specification**: [api_spec.md](api_spec.md)
+- **Swagger UI**: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+- **User Journey**: [user_journey.md](user_journey.md)
+
+---
+
+## Getting Started
+
+1. `.env` 파일을 생성하고 다음 정보를 입력하세요:
+   ```env
+   SPRING_AI_GOOGLE_GENAI_API_KEY=your_gemini_api_key
+   NAVER_CLIENT_ID=your_naver_id
+   NAVER_CLIENT_SECRET=your_naver_secret
+   DB_URL=jdbc:mysql://localhost:3306/picpick
+   DB_USER=root
+   DB_PASSWORD=your_password
+   AWS_ACCESS_KEY_ID=your_aws_key
+   AWS_SECRET_ACCESS_KEY=your_aws_secret
+   ```
+2. Gradle 빌드를 실행하세요:
+   ```bash
+   ./gradlew bootRun
+   ```
