@@ -12,11 +12,6 @@ import org.springframework.web.bind.annotation.*;
 public class GeminiController {
     private final GeminiService geminiService;
 
-    @PostMapping("/analyze")
-    public GeminiResponse analyzeProduct(@RequestBody GeminiRequest request) {
-        return geminiService.analyzeProduct(request);
-    }
-
     @GetMapping("/{scanId}")
     public ResponseEntity<GeminiResponse> getAnalyzedProductByScanId(
             @PathVariable Long scanId) {

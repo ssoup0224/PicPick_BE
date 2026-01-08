@@ -185,24 +185,6 @@ public class GeminiService {
             }
             """;
 
-    public GeminiResponse analyzeProduct(GeminiRequest request) {
-        log.info("Analyzing product with Gemini: {}, scanPrice: {}, naverPrice: {}", request.getScanName(),
-                request.getScanPrice(), request.getNaverPrice());
-
-        GeminiResponse response = getAiReport(request.getScanName(),
-                request.getScanPrice() != null ? request.getScanPrice().doubleValue() : 0.0,
-                request.getNaverPrice() != null ? request.getNaverPrice().doubleValue() : 0.0,
-                request.getAiUnitPrice());
-
-        if (response != null && !"분석 불가".equals(response.getConclusion())
-                && !"분석 오류".equals(response.getConclusion())) {
-            Gemini entity = geminiMapper.toEntity(response);
-            geminiRepository.save(entity);
-        }
-
-        return response;
-    }
-
     @Transactional
     public void analyzeProduct(Scan scan, Long userId) {
         log.info("Analyzing Scan with Gemini in background: {}, scanPrice: {}, naverPrice: {}", scan.getScanName(),
@@ -211,33 +193,16 @@ public class GeminiService {
         // Determine existing unit price
         String aiUnitPrice = "";
         if (scan.getAiUnitPrice() != null && !scan.getAiUnitPrice().equals("분석 오류")
-                && !scan.getAiUnitPrice().equals("분석 불가")
-                && !scan.getAiUnitPrice().contains("해냈어")) { // Skip placeholder
+                && !scan.getAiUnitPrice().equals("분석 불가")) { // Skip placeholder
             aiUnitPrice = scan.getAiUnitPrice();
             log.debug("Using existing unit price for Scan {}: {}", scan.getId(), aiUnitPrice);
         }
 
-        GeminiResponse response = getAiReport(scan.getScanName(),
-                scan.getScanPrice() != null ? scan.getScanPrice().doubleValue() : 0.0,
-                scan.getNaverPrice() != null ? scan.getNaverPrice().doubleValue() : 0.0,
-                aiUnitPrice);
-
-        if (response != null && !"분석 불가".equals(response.getConclusion())
-                && !"분석 오류".equals(response.getConclusion())) {
-            Gemini entity = geminiMapper.toEntity(response);
-            entity.setScan(scan);
-            userRepository.findById(userId).ifPresent(entity::setUser);
-            geminiRepository.save(entity);
-            log.debug("AI Response for Scan {}: {}", scan.getId(), response);
-        }
-    }
-
-    private GeminiResponse getAiReport(String scanName, Double scanPrice, Double naverPrice, String aiUnitPrice) {
         String userInput = ANALYSIS_PROMPT
-                .replace("{scanName}", scanName != null ? scanName : "")
-                .replace("{scanPrice}", scanPrice != null ? scanPrice.toString() : "0")
-                .replace("{naverPrice}", naverPrice != null ? naverPrice.toString() : "0")
-                .replace("{aiUnitPrice}", aiUnitPrice != null ? aiUnitPrice : "");
+                .replace("{scanName}", scan.getScanName() != null ? scan.getScanName() : "")
+                .replace("{scanPrice}", scan.getScanPrice() != null ? scan.getScanPrice().toString() : "0")
+                .replace("{naverPrice}", scan.getNaverPrice() != null ? scan.getNaverPrice().toString() : "0")
+                .replace("{aiUnitPrice}", aiUnitPrice);
 
         try {
             GeminiResponse response = chatClient.prompt()
@@ -250,16 +215,19 @@ public class GeminiService {
                     });
 
             if (response == null) {
-                GeminiResponse errorResponse = new GeminiResponse();
-                errorResponse.setConclusion("분석 불가");
-                return errorResponse;
+                log.warn("Gemini analysis returned null for Scan {}", scan.getId());
+                return;
             }
-            return response;
+            Gemini entity = geminiMapper.toEntity(response);
+            entity.setScan(scan);
+
+            userRepository.findById(userId).ifPresent(entity::setUser);
+
+            geminiRepository.save(entity);
+
+            log.debug("AI Response for Scan {}: {}", scan.getId(), response);
         } catch (Exception e) {
-            log.error("Error during Gemini analysis: {}", e.getMessage());
-            GeminiResponse errorResponse = new GeminiResponse();
-            errorResponse.setConclusion("분석 오류");
-            return errorResponse;
+            log.error("Error during analysis for Scan {}: {}", scan.getId(), e.getMessage());
         }
     }
 
@@ -306,11 +274,13 @@ public class GeminiService {
 
     @Async
     public void analyzeScansBatch(List<Scan> scans, Long userId) {
+        log.info("Starting batch analysis for {} items", scans.size());
         for (Scan scan : scans) {
             if (scan.getGemini() == null) {
                 analyzeProduct(scan, userId);
+                log.info("Finished analysis of product: {}", scan.getScanName());
                 try {
-                    Thread.sleep(3000); // 3-second delay to respect rate limit for background calls
+                    Thread.sleep(3000); // 3-second delay to respect rate-limit for background calls
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.warn("Batch analysis interrupted");
