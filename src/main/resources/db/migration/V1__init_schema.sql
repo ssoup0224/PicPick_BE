@@ -45,6 +45,7 @@ CREATE TABLE scans (
     naver_name VARCHAR(255),
     naver_price INTEGER,
     naver_image VARCHAR(255),
+    is_shown BOOLEAN DEFAULT FALSE,
     ai_unit_price VARCHAR(255),
     user_id BIGINT,
     mart_id BIGINT,

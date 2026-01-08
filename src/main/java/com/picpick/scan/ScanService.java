@@ -71,10 +71,9 @@ public class ScanService {
                         }
 
                         // Gemini Unit Price for new item
-//                        UnitPriceResponse unitPriceResponse = geminiService
-//                                .getUnitPrice(new UnitPriceRequest(item.getScanName(), item.getScanPrice()));
-//                        scan.setAiUnitPrice(unitPriceResponse.getAiUnitPrice());
-                        scan.setAiUnitPrice("해냈어!! 잘하고 있어!! 화이팅하자!!");
+                        UnitPriceResponse unitPriceResponse = geminiService
+                                .getUnitPrice(new UnitPriceRequest(item.getScanName(), item.getScanPrice()));
+                        scan.setAiUnitPrice(unitPriceResponse.getAiUnitPrice());
                     }
 
                     return scan;
