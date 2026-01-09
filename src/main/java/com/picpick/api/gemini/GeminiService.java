@@ -239,7 +239,8 @@ public class GeminiService {
 
             geminiRepository.save(entity);
 
-            log.debug("AI Response for Scan {}: {}", scan.getId(), response);
+            log.debug("Saved Gemini for Scan {}: naverImage={}, scanName={}",
+                    scan.getId(), entity.getNaverImage(), entity.getScanName());
         } catch (Exception e) {
             log.error("Error during analysis for Scan {}: {}", scan.getId(), e.getMessage());
         }
