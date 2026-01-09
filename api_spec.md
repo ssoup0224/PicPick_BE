@@ -260,7 +260,7 @@
 
 **Path Variable**
 
-| **Parameter** | 타입 | **Description** |
+| **Parameter** | 타입 | **설명** |
 | --- | --- | --- |
 | `scanId` | Long | 스캔 기록의 ID |
 
@@ -511,7 +511,7 @@
 {
   "name": "픽픽 Store",
   "address": "경북 포항시 북구 흥해읍 한동로 558",
-  "registrationNumber": 1234567890
+  "registrationNumber": 1234567890,
   "latitude": 37.5665,
   "longitude": 126.9780
 }
